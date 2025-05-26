@@ -5,6 +5,23 @@ document.addEventListener("DOMContentLoaded", function () {
   let gameOver = false;
   let board = gameboard();
 
+  const buttonRestart = document.createElement("button");
+  buttonRestart.classList.add("buttonRestart");
+  buttonRestart.textContent = "Restart";
+  buttonRestart.style.display = "none";
+  document.body.appendChild(buttonRestart);
+
+  buttonRestart.addEventListener("click", () => {
+    board = gameboard();
+    gameOver = false;
+    currentPlayer = "X";
+    statusElement.textContent = `Current player: ${currentPlayer}`;
+    document
+      .querySelectorAll(".cell")
+      .forEach((cell) => (cell.textContent = ""));
+    buttonRestart.style.display = "none";
+  });
+
   for (let i = 0; i < 9; i++) {
     let cell = document.createElement("div");
     cell.classList.add("cell");
@@ -30,12 +47,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (winner) {
       statusElement.textContent = `Player ${winner} wins!`;
       gameOver = true;
+      buttonRestart.style.display = "inline-block";
       return;
     }
 
     if (isDraw(board)) {
       statusElement.textContent = "It is a draw!";
       gameOver = true;
+      buttonRestart.style.display = "inline-block";
       return;
     }
 
