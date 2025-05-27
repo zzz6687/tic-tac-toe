@@ -1,25 +1,74 @@
 document.addEventListener("DOMContentLoaded", function () {
-  let currentPlayer = "X";
   const statusElement = document.getElementById("status");
   const boardElement = document.querySelector(".gameboard");
+  const gameArea = document.querySelector(".gamearea");
+  const buttonsArea = document.querySelector(".buttons");
+  const resetBtn = document.getElementById("resetBtn");
+
+  let currentSymbol = "X";
   let gameOver = false;
   let board = gameboard();
+
+  let firstPlayerName = "Player 1";
+  let secondPlayerName = "Player 2";
+  let scorePlayerOne = 0;
+  let scorePlayerTwo = 0;
+
+  const inputPlayer1 = document.getElementById("playerOne");
+  const inputPlayer2 = document.getElementById("playerTwo");
+
+  inputPlayer1.addEventListener("input", () => {
+    firstPlayerName = inputPlayer1.value || "Player 1";
+    if (currentSymbol === "X") updateStatus();
+  });
+
+  inputPlayer2.addEventListener("input", () => {
+    secondPlayerName = inputPlayer2.value || "Player 2";
+    if (currentSymbol === "O") updateStatus();
+  });
+
+  resetBtn.addEventListener("click", () => {
+    firstPlayerName = "Player 1";
+    secondPlayerName = "Player 2";
+    scorePlayerOne = 0;
+    scorePlayerTwo = 0;
+    board = gameboard();
+    gameOver = false;
+    currentSymbol = "X";
+
+    inputPlayer1.value = "Player 1";
+    inputPlayer2.value = "Player 2";
+    document
+      .querySelectorAll(".cell")
+      .forEach((cell) => (cell.textContent = ""));
+    buttonRestart.style.display = "none";
+    updateStatus();
+
+    document.getElementById("playerOne-score").textContent = scorePlayerOne;
+    document.getElementById("playerTwo-score").textContent = scorePlayerTwo;
+  });
+
+  function updateStatus() {
+    const currentName =
+      currentSymbol === "X" ? firstPlayerName : secondPlayerName;
+    statusElement.textContent = `Current player: ${currentName}`;
+  }
 
   const buttonRestart = document.createElement("button");
   buttonRestart.classList.add("buttonRestart");
   buttonRestart.textContent = "Restart";
   buttonRestart.style.display = "none";
-  document.body.appendChild(buttonRestart);
+  buttonsArea.appendChild(buttonRestart);
 
   buttonRestart.addEventListener("click", () => {
     board = gameboard();
     gameOver = false;
-    currentPlayer = "X";
-    statusElement.textContent = `Current player: ${currentPlayer}`;
+    currentSymbol = "X";
     document
       .querySelectorAll(".cell")
       .forEach((cell) => (cell.textContent = ""));
     buttonRestart.style.display = "none";
+    updateStatus();
   });
 
   for (let i = 0; i < 9; i++) {
@@ -38,14 +87,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const col = index % 3;
 
     if (board[row][col] !== null) return;
-    board[row][col] = currentPlayer;
+    board[row][col] = currentSymbol;
 
-    let cells = document.querySelectorAll(".cell");
-    cells[index].textContent = currentPlayer;
+    const cells = document.querySelectorAll(".cell");
+    cells[index].textContent = currentSymbol;
 
     const winner = checkWinner(board);
     if (winner) {
-      statusElement.textContent = `Player ${winner} wins!`;
+      const winnerName = winner === "X" ? firstPlayerName : secondPlayerName;
+      statusElement.textContent = `${winnerName} wins!`;
+
+      if (winner === "X") {
+        scorePlayerOne++;
+        document.getElementById("playerOne-score").textContent = scorePlayerOne;
+      } else {
+        scorePlayerTwo++;
+        document.getElementById("playerTwo-score").textContent = scorePlayerTwo;
+      }
+
       gameOver = true;
       buttonRestart.style.display = "inline-block";
       return;
@@ -58,13 +117,8 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    if (currentPlayer === "X") {
-      currentPlayer = "O";
-    } else {
-      currentPlayer = "X";
-    }
-
-    statusElement.textContent = `Current player ${currentPlayer}`;
+    currentSymbol = currentSymbol === "X" ? "O" : "X";
+    updateStatus();
   }
 
   function gameboard() {
@@ -128,4 +182,5 @@ document.addEventListener("DOMContentLoaded", function () {
       return false;
     }
   }
+  updateStatus();
 });
